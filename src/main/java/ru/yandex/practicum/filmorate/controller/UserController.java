@@ -22,36 +22,31 @@ public class UserController {
 
     @PostMapping
     public User create(@RequestBody User user) {
-
         if (user.getEmail() == null || user.getEmail().isBlank() || !user.getEmail().contains("@")) {
             throw new ConditionsNotMetException("Email должен быть указан и содержать символ @");
         }
-
         if (user.getLogin() == null || user.getLogin().isBlank()) {
             throw new ConditionsNotMetException("Login должен быть указан");
         }
         if (user.getLogin().contains(" ")) {
             throw new ConditionsNotMetException("Login не должен содержать пробелы");
         }
-
         if (user.getName() == null || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-
         if (user.getBirthday() == null) {
             throw new ConditionsNotMetException("Дата рождения должна быть указана");
         }
         if (user.getBirthday().isAfter(LocalDate.now())) {
             throw new ConditionsNotMetException("Дата рождения не может быть в будущем");
         }
-
         user.setId(getNextId());
         users.put(user.getId(), user);
         return user;
     }
 
     @PutMapping
-    public User update(@RequestBody User newUser){
+    public User update(@RequestBody User newUser) {
         if (newUser.getId() == null) {
             throw new ConditionsNotMetException("Id должен быть указан");
         }
@@ -63,6 +58,9 @@ public class UserController {
 
         if (newUser.getEmail() != null) {
             user.setEmail(newUser.getEmail());
+        }
+        if (newUser.getLogin() != null) {
+            user.setLogin(newUser.getLogin());
         }
         if (newUser.getName() != null) {
             user.setName(newUser.getName());
