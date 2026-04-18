@@ -97,6 +97,7 @@ public class FilmController {
             throw new ConditionsNotMetException("Продолжительность должна быть положительной");
         }
     }
+
     private long getNextId() {
         return ++counter;
     }
