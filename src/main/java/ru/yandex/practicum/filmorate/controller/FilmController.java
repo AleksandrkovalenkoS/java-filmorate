@@ -14,7 +14,7 @@ import java.util.Map;
 public class FilmController {
 
     private final Map<Long, Film> films = new HashMap<>();
-    private long counter =0L;
+    private long counter = 0L;
 
     @GetMapping
     public Collection<Film> findAll() {
@@ -100,5 +100,4 @@ public class FilmController {
     private long getNextId() {
         return ++counter;
     }
-
 }
