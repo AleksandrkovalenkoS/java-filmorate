@@ -14,6 +14,7 @@ import java.util.Map;
 public class FilmController {
 
     private final Map<Long, Film> films = new HashMap<>();
+    private long counter =0L;
 
     @GetMapping
     public Collection<Film> findAll() {
@@ -22,33 +23,11 @@ public class FilmController {
 
     @PostMapping
     public Film create(@RequestBody Film film) {
-        if (film.getName() == null || film.getName().isBlank()) {
-            throw new ConditionsNotMetException("Название не может быть пустым");
-        }
-
-        if (film.getDescription() != null && film.getDescription().length() > 200) {
-            throw new ConditionsNotMetException("Максимальная длина описания 200 символов");
-        }
-
-        LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
-        if (film.getReleaseDate() == null) {
-            throw new ConditionsNotMetException("Дата релиза должна быть указана");
-        }
-        if (film.getReleaseDate().isBefore(minReleaseDate)) {
-            throw new ConditionsNotMetException("Дата релиза не может быть раньше 28 декабря 1895 года");
-        }
-
-        if (film.getDuration() == null) {
-            throw new ConditionsNotMetException("Продолжительность должна быть указана");
-        }
-        if (film.getDuration() <= 0) {
-            throw new ConditionsNotMetException("Продолжительность должна быть положительной");
-        }
-
+        validateFilm(film);
         film.setId(getNextId());
         films.put(film.getId(), film);
         return film;
-    }
+        }
 
     @PutMapping
     public Film update(@RequestBody Film newFilm) {
@@ -61,41 +40,65 @@ public class FilmController {
             throw new ConditionsNotMetException("Фильм с id " + newFilm.getId() + " не найден");
         }
 
+        validateFilmUpdate(newFilm);
+
         if (newFilm.getName() != null) {
-            if (newFilm.getName().isBlank()) {
-                throw new ConditionsNotMetException("Название не может быть пустым");
-            }
             film.setName(newFilm.getName());
         }
         if (newFilm.getDescription() != null) {
-            if (newFilm.getDescription().length() > 200) {
-                throw new ConditionsNotMetException("Максимальная длина описания 200 символов");
-            }
             film.setDescription(newFilm.getDescription());
         }
         if (newFilm.getReleaseDate() != null) {
-            LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
-            if (newFilm.getReleaseDate().isBefore(minReleaseDate)) {
-                throw new ConditionsNotMetException("Дата релиза не может быть раньше 28 декабря 1895 года");
-            }
             film.setReleaseDate(newFilm.getReleaseDate());
         }
         if (newFilm.getDuration() != null) {
-            if (newFilm.getDuration() <= 0) {
-                throw new ConditionsNotMetException("Продолжительность должна быть положительной");
-            }
             film.setDuration(newFilm.getDuration());
         }
 
         return film;
     }
 
-    private long getNextId() {
-        long currentMaxId = films.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+    private void validateFilm(Film film) {
+        if (film.getName() == null || film.getName().isBlank()) {
+            throw new ConditionsNotMetException("Название не может быть пустым");
+        }
+        if (film.getDescription() != null && film.getDescription().length() > 200) {
+            throw new ConditionsNotMetException("Максимальная длина описания 200 символов");
+        }
+        LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
+        if (film.getReleaseDate() == null) {
+            throw new ConditionsNotMetException("Дата релиза должна быть указана");
+        }
+        if (film.getReleaseDate().isBefore(minReleaseDate)) {
+            throw new ConditionsNotMetException("Дата релиза не может быть раньше 28 декабря 1895 года");
+        }
+        if (film.getDuration() == null) {
+            throw new ConditionsNotMetException("Продолжительность должна быть указана");
+        }
+        if (film.getDuration() <= 0) {
+            throw new ConditionsNotMetException("Продолжительность должна быть положительной");
+        }
     }
+
+    private void validateFilmUpdate(Film film) {
+        if (film.getName() != null && film.getName().isBlank()) {
+            throw new ConditionsNotMetException("Название не может быть пустым");
+        }
+        if (film.getDescription() != null && film.getDescription().length() > 200) {
+            throw new ConditionsNotMetException("Максимальная длина описания 200 символов");
+        }
+        if (film.getReleaseDate() != null) {
+            LocalDate minReleaseDate = LocalDate.of(1895, 12, 28);
+            if (film.getReleaseDate().isBefore(minReleaseDate)) {
+                throw new ConditionsNotMetException("Дата релиза не может быть раньше 28 декабря 1895 года");
+            }
+        }
+        if (film.getDuration() != null && film.getDuration() <= 0) {
+            throw new ConditionsNotMetException("Продолжительность должна быть положительной");
+        }
+    }
+    private long getNextId() {
+        return ++counter;
+    }
+
 }
