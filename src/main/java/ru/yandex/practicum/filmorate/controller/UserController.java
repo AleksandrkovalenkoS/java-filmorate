@@ -40,7 +40,7 @@ public class UserController {
             throw new ConditionsNotMetException("Пользователь с id " + newUser.getId() + " не найден");
         }
 
-        validateUserUpdate(newUser);
+        validateUser(newUser);
 
         if (newUser.getEmail() != null) {
             user.setEmail(newUser.getEmail());
@@ -79,23 +79,7 @@ public class UserController {
         }
     }
 
-    private void validateUserUpdate(User user) {
-        if (user.getEmail() != null && (user.getEmail().isBlank() || !user.getEmail().contains("@"))) {
-            throw new ConditionsNotMetException("Email должен быть указан и содержать символ @");
-        }
-        if (user.getLogin() != null && user.getLogin().isBlank()) {
-            throw new ConditionsNotMetException("Login должен быть указан");
-        }
-        if (user.getLogin() != null && user.getLogin().contains(" ")) {
-            throw new ConditionsNotMetException("Login не должен содержать пробелы");
-        }
-        if (user.getBirthday() != null && user.getBirthday().isAfter(LocalDate.now())) {
-            throw new ConditionsNotMetException("Дата рождения не может быть в будущем");
-        }
+    private long getNextId() {
+        return ++counter;
     }
-
-        private long getNextId() {
-            return ++counter;
-
-        }
 }
