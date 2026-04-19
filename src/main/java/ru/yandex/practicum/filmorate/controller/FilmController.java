@@ -25,7 +25,7 @@ public class FilmController {
 
     @PostMapping
     public Film create(@RequestBody Film film) {
-        validateFilm(film);
+        validateFilm(film, true);
         film.setId(getNextId());
         films.put(film.getId(), film);
         return film;
@@ -42,7 +42,7 @@ public class FilmController {
             throw new ConditionsNotMetException("Фильм с id " + newFilm.getId() + " не найден");
         }
 
-        validateFilm(newFilm);
+        validateFilm(newFilm, false);
 
         if (newFilm.getName() != null) {
             film.setName(newFilm.getName());
@@ -60,24 +60,33 @@ public class FilmController {
         return film;
     }
 
-    private void validateFilm(Film film) {
-        if (film.getName() == null || film.getName().isBlank()) {
+    private void validateFilm(Film film, boolean isCreate) {
+        if (film.getName() != null && film.getName().isBlank()) {
             throw new ConditionsNotMetException("Название не может быть пустым");
         }
+        if (isCreate && film.getName() == null) {
+            throw new ConditionsNotMetException("Название не может быть пустым");
+        }
+
         if (film.getDescription() != null && film.getDescription().length() > MAX_DESCRIPTION_LENGTH) {
             throw new ConditionsNotMetException("Максимальная длина описания " + MAX_DESCRIPTION_LENGTH + " символов");
         }
-        if (film.getReleaseDate() == null) {
+
+        if (film.getReleaseDate() != null) {
+            if (film.getReleaseDate().isBefore(FILM_BIRTHDAY)) {
+                throw new ConditionsNotMetException("Дата релиза не может быть раньше " + FILM_BIRTHDAY);
+            }
+        }
+
+        if (isCreate && film.getReleaseDate() == null) {
             throw new ConditionsNotMetException("Дата релиза должна быть указана");
         }
-        if (film.getReleaseDate().isBefore(FILM_BIRTHDAY)) {
-            throw new ConditionsNotMetException("Дата релиза не может быть раньше " + FILM_BIRTHDAY);
-        }
-        if (film.getDuration() == null) {
-            throw new ConditionsNotMetException("Продолжительность должна быть указана");
-        }
-        if (film.getDuration() <= 0) {
+
+        if (film.getDuration() != null && film.getDuration() <= 0) {
             throw new ConditionsNotMetException("Продолжительность должна быть положительной");
+        }
+        if (isCreate && film.getDuration() == null) {
+            throw new ConditionsNotMetException("Продолжительность должна быть указана");
         }
     }
 
